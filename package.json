@@ -12,8 +12,11 @@
   "dependencies": {
     "@capacitor/android": "^7.4.3",
     "@capacitor/core": "^7.4.3",
+    "axios": "^1.13.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.5",
+    "styled-components": "^6.1.19"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
