@@ -5,21 +5,24 @@ const ResultContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100dvh; /* 주소창 변화 대응 */
   background-color: #fff7eb;
-  overflow-y: auto;
+  overflow: hidden; /* 컨테이너 자체는 스크롤 안 함 */
 `;
 
 const BackgroundGradient = styled.div`
   position: absolute;
   bottom: 128px;
   right: 0;
-  width: 393px;
+  width: 100%;
   height: 78px;
   background: linear-gradient(
     to bottom,
     rgba(115, 115, 115, 0) 20.192%,
     rgba(115, 115, 115, 0.15) 100%
   );
+  pointer-events: none; /* 스크롤 방해 안 함 */
+  z-index: 1;
 `;
 
 const BottomGradient = styled.div`
@@ -27,10 +30,12 @@ const BottomGradient = styled.div`
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 392px;
+  width: 100%;
+  max-width: 392px;
   height: 128px;
   background: linear-gradient(to bottom, #fedcd1, #fff7eb);
   overflow: hidden;
+  z-index: 2;
 `;
 
 const ButtonWrapper = styled.div`
@@ -43,7 +48,8 @@ const ButtonWrapper = styled.div`
 const MessageContainer = styled.div`
   position: absolute;
   top: 0;
-  left: 94px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 206px;
   height: 122px;
   display: flex;
@@ -52,6 +58,7 @@ const MessageContainer = styled.div`
   align-items: center;
   justify-content: flex-end;
   padding: 10px;
+  z-index: 2;
 `;
 
 const MessageBubble = styled.div`
@@ -90,14 +97,24 @@ const HighlightText = styled.span`
 
 const ResultsList = styled.div`
   position: absolute;
-  top: 140px;
+  top: 0px;
+  bottom: 128px;
   left: 50%;
   transform: translateX(-50%);
   width: 300px;
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding-bottom: 200px;
+  overflow-y: auto; /* Results만 스크롤 */
+  padding-bottom: 78px; /* 마지막 항목 여유공간 */
+  padding-top: 140px;
+  
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 const ResultCard = styled.div`
@@ -247,9 +264,10 @@ function QuizResult({ result, questions, onConfirm }) {
               <AnswersContainer>
                 {isCorrect ? (
                   <>
-                    {/* 정답인 경우: 내가 한 답・정답 하나로 표시 */}
-                    <AnswerLabel highlight>
-                      내가 한 답・정답
+                    {/* 정답인 경우: 내가 한 답 ・정답 하나로 표시 */}
+                    <AnswerLabel>
+                      <span style={{ color: '#b4afab' }}>내가 한 답 </span>
+                      <span style={{ color: '#2e2a27' }}>・정답</span>
                     </AnswerLabel>
                     <AnswerBox isCorrect={true}>
                       <AnswerText>{userAnswer.userAnswerText}</AnswerText>
