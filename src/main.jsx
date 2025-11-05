@@ -17,7 +17,7 @@ import MyLibraryPage from './pages/MyLibraryPage.jsx';
 import SearchPage from './pages/SearchPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
-import OnboardingPage from './pages/OnboardingPage.jsx';
+import OnboardingPage from './pages/OnBoardingPage.jsx';
 
 // 3. 라우터 객체 정의
 const router = createBrowserRouter([
