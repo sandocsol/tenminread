@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import GlobalStyle from './styles/GlobalStyle';
 
 function App() {
   // 사용자 정보 상태 관리
@@ -59,6 +60,7 @@ function App() {
           HomePage, ReaderPage, QuizPage 등이 렌더링됩니다.
           context를 사용해 user 정보를 모든 하위 페이지에 전달할 수도 있습니다.
         */}
+        <GlobalStyle />
         <Outlet context={{ user, isUserLoading: isLoading }} />
       </main>
     </>

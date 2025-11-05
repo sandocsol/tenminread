@@ -6,8 +6,12 @@ import Button from '../../../components/Button';
 const QuizContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100vh; /* 폴백 */
+  height: 100dvh; /* 주소창 변화 대응 */
   background-color: #ffffff;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
+  overflow-y: auto; /* 세로 스크롤 허용 */
+  box-sizing: border-box;
 `;
 
 const ProgressBarWrapper = styled.div`

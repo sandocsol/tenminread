@@ -8,6 +8,9 @@ import {
 // 1. App.jsx (공통 레이아웃 + Outlet) 임포트
 import App from './App.jsx';
 
+// AppShell 임포트 (화면 크기 조절)
+import AppShell from './components/AppShell.jsx';
+
 // 2. 페이지 컴포넌트들 임포트
 import HomePage from './pages/HomePage.jsx';
 import BookDetailPage from './pages/BookDetailPage.jsx';
@@ -46,6 +49,8 @@ const router = createBrowserRouter([
 // 5. RouterProvider로 앱 렌더링
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AppShell>
+      <RouterProvider router={router} />
+    </AppShell>
   </React.StrictMode>
 );

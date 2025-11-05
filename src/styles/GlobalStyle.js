@@ -13,11 +13,14 @@ const GlobalStyle = createGlobalStyle`
     height: 100%;
     width: 100%;
     min-height: 100%;
-    overflow: auto; /* 스크롤 허용 (모바일에서 하단 영역 잘림 방지) */
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    overflow-y: auto; /* 세로 스크롤 허용 */
   }
 
   #root {
     height: 100%;
+    width: 100%;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
   }
 `;
 
