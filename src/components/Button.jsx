@@ -6,13 +6,15 @@ const StyledButton = styled.button`
   padding: ${props => props.padding || '7px 139px'};
   background-color: ${props => {
     if (props.disabled) return '#e0e0e0';
+    if (props.bgColor) return props.bgColor;
     if (props.variant === 'primary') return '#fdd470';
     if (props.variant === 'secondary') return '#ffffff';
-    return props.bgColor || '#fdd470';
+    return '#fdd470';
   }};
   border: ${props => {
+    if (props.border !== undefined) return props.border;
     if (props.variant === 'secondary') return '1px solid #b7b7b7';
-    return props.border || 'none';
+    return 'none';
   }};
   border-radius: ${props => props.borderRadius || '10px'};
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
@@ -24,9 +26,10 @@ const StyledButton = styled.button`
   &:hover {
     background-color: ${props => {
       if (props.disabled) return '#e0e0e0';
+      if (props.bgColor) return props.bgColor;
       if (props.variant === 'primary') return '#f5c85a';
       if (props.variant === 'secondary') return '#f9f9f9';
-      return props.bgColor || '#f5c85a';
+      return '#f5c85a';
     }};
   }
   
@@ -42,8 +45,9 @@ const ButtonText = styled.p`
   line-height: ${props => props.lineHeight || '35px'};
   color: ${props => {
     if (props.disabled) return '#9e9e9e';
+    if (props.color) return props.color;
     if (props.variant === 'secondary') return '#b7b7b7';
-    return props.color || '#ffffff';
+    return '#ffffff';
   }};
   margin: 0;
   white-space: pre;
