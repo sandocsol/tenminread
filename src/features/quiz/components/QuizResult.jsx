@@ -10,15 +10,52 @@ const ResultContainer = styled.div`
   overflow: hidden; /* 컨테이너 자체는 스크롤 안 함 */
 `;
 
+const RadialGradientBackground = styled.div`
+  position: absolute;
+  width: 2095px;
+  height: 2066px;
+  left: -852px;
+  top: -988px;
+  pointer-events: none;
+  z-index: 0;
+`;
+
+const RadialGradientContainer = styled.div`
+  position: absolute;
+  width: 2457px;
+  height: 2373px;
+  left: -178px;
+  top: -110px;
+  opacity: 0.4;
+  pointer-events: none;
+`;
+
+const RadialGradient = styled.div`
+  position: absolute;
+  width: 2457px;
+  height: 2373px;
+  left: 0;
+  top: 0;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgba(255, 248, 35, 0.6) 0%,
+    rgba(246, 198, 80, 0.4) 11%,
+    rgba(251, 150, 142, 0.4) 57%,
+    rgba(255, 102, 204, 0.3) 100%
+  );
+  border-radius: 9999px;
+  pointer-events: none;
+`;
+
 const BackgroundGradient = styled.div`
   position: absolute;
   bottom: 128px;
-  right: 0;
+  left: 0;
   width: 100%;
   height: 78px;
   background: linear-gradient(
     to bottom,
-    rgba(115, 115, 115, 0) 20.192%,
+    rgba(115, 115, 115, 0) 20%,
     rgba(115, 115, 115, 0.15) 100%
   );
   pointer-events: none; /* 스크롤 방해 안 함 */
@@ -31,7 +68,6 @@ const BottomGradient = styled.div`
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 392px;
   height: 128px;
   background: linear-gradient(to bottom, #fedcd1, #fff7eb);
   overflow: hidden;
@@ -108,6 +144,7 @@ const ResultsList = styled.div`
   overflow-y: auto; /* Results만 스크롤 */
   padding-bottom: 78px; /* 마지막 항목 여유공간 */
   padding-top: 140px;
+
   
   /* 스크롤바 숨기기 */
   scrollbar-width: none; /* Firefox */
@@ -230,6 +267,13 @@ function QuizResult({ result, questions, onConfirm }) {
 
   return (
     <ResultContainer>
+      {/* Radial Gradient Background */}
+      <RadialGradientBackground>
+        <RadialGradientContainer>
+          <RadialGradient />
+        </RadialGradientContainer>
+      </RadialGradientBackground>
+
       {/* Result Message */}
       <MessageContainer>
         <MessageBubble>
