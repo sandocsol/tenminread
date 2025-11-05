@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import ProgressBar from '../features/reader/components/ProgressBar';
-import Button from '../components/Button';
+import ProgressBar from '../../reader/components/ProgressBar';
+import Button from '../../../components/Button';
 
 const QuizContainer = styled.div`
   position: relative;
