@@ -1,9 +1,5 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+/* App.css는 기본 Vite 템플릿 스타일이므로 
+   모바일 앱에서는 GlobalStyle.js에서 관리합니다 */
 
 .logo {
   height: 6em;
