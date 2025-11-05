@@ -2,6 +2,24 @@
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
+  /* Pretendard Variable 폰트 로드 */
+  @font-face {
+    font-family: 'Pretendard Variable';
+    src: url('/fonts/PretendardVariable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* VITRO PRIDE OTF 폰트 로드 */
+  @font-face {
+    font-family: 'VITRO_PRIDE_OTF';
+    src: url('/fonts/VITRO PRIDE OTF.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
   /* 전역 초기화 스타일 */
   *, *::before, *::after {
     box-sizing: border-box;

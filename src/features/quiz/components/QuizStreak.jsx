@@ -182,6 +182,7 @@ const CalendarDates = styled.div`
   gap: 13px;
   align-items: center;
   text-align: center;
+  font-family: 'Pretendard Variable', sans-serif;
   font-size: 12px;
   color: #2e2a27;
   letter-spacing: -0.32px;

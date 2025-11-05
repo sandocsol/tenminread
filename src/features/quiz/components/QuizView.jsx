@@ -28,19 +28,26 @@ const QuestionContainer = styled.div`
   transform: translateX(-50%);
   width: 328px;
   min-height: 70px;
+  /* float 컨텍스트를 위한 clearfix */
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
 `;
 
 const QuestionBadge = styled.div`
-  position: absolute;
-  top: 4.1px;
-  left: 4.1px;
+  float: left;
   width: 24.8px;
   height: 24.8px;
+  margin-top: 4.1px;
+  margin-right: 10.2px; /* Badge와 텍스트 사이 여유공간 */
   background-color: #fdd470;
   border-radius: 12.4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 `;
 
 const QuestionNumber = styled.p`
@@ -53,17 +60,14 @@ const QuestionNumber = styled.p`
 `;
 
 const QuestionText = styled.p`
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 328px;
   font-family: 'VITRO_PRIDE_OTF', sans-serif;
   font-size: 22px;
   line-height: 35px;
   color: #2e2a27;
   margin: 0;
   white-space: pre-wrap;
+  /* Badge가 float로 배치되므로 텍스트가 자동으로 주변으로 흐름 */
+  /* 첫 번째 줄은 Badge 오른쪽에서 시작, 두 번째 줄부터는 왼쪽부터 시작 */
 `;
 
 const OptionsContainer = styled.div`
