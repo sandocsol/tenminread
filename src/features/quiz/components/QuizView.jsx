@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import ProgressBar from '../../reader/components/ProgressBar';
+import ProgressBar from './ProgressBar';
 import Button from '../../../components/Button';
 
 const QuizContainer = styled.div`
@@ -17,13 +17,15 @@ const QuizContainer = styled.div`
 const ProgressBarWrapper = styled.div`
   position: absolute;
   top: 68px;
-  left: 28px;
+  left: 50%;
+  transform: translateX(-50%);
 `;
 
 const QuestionContainer = styled.div`
   position: absolute;
   top: 114px;
-  left: 32px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 328px;
   min-height: 70px;
 `;
@@ -53,7 +55,7 @@ const QuestionNumber = styled.p`
 const QuestionText = styled.p`
   position: absolute;
   top: 0;
-  left: calc(50% - 164px);
+  left: 50%;
   transform: translateX(-50%);
   width: 328px;
   font-family: 'VITRO_PRIDE_OTF', sans-serif;
@@ -67,7 +69,8 @@ const QuestionText = styled.p`
 const OptionsContainer = styled.div`
   position: absolute;
   top: 263px;
-  left: 31px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 330px;
   display: flex;
   flex-direction: column;
