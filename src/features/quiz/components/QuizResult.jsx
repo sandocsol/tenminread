@@ -5,21 +5,61 @@ const ResultContainer = styled.div`
   position: relative;
   width: 100%;
   height: 100vh;
+  height: 100dvh; /* 주소창 변화 대응 */
   background-color: #fff7eb;
-  overflow-y: auto;
+  overflow: hidden; /* 컨테이너 자체는 스크롤 안 함 */
+`;
+
+const RadialGradientBackground = styled.div`
+  position: absolute;
+  width: 2095px;
+  height: 2066px;
+  left: -852px;
+  top: -988px;
+  pointer-events: none;
+  z-index: 0;
+`;
+
+const RadialGradientContainer = styled.div`
+  position: absolute;
+  width: 2457px;
+  height: 2373px;
+  left: -178px;
+  top: -110px;
+  opacity: 0.4;
+  pointer-events: none;
+`;
+
+const RadialGradient = styled.div`
+  position: absolute;
+  width: 2457px;
+  height: 2373px;
+  left: 0;
+  top: 0;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    rgba(255, 248, 35, 0.6) 0%,
+    rgba(246, 198, 80, 0.4) 11%,
+    rgba(251, 150, 142, 0.4) 57%,
+    rgba(255, 102, 204, 0.3) 100%
+  );
+  border-radius: 9999px;
+  pointer-events: none;
 `;
 
 const BackgroundGradient = styled.div`
   position: absolute;
   bottom: 128px;
-  right: 0;
-  width: 393px;
+  left: 0;
+  width: 100%;
   height: 78px;
   background: linear-gradient(
     to bottom,
-    rgba(115, 115, 115, 0) 20.192%,
+    rgba(115, 115, 115, 0) 20%,
     rgba(115, 115, 115, 0.15) 100%
   );
+  pointer-events: none; /* 스크롤 방해 안 함 */
+  z-index: 1;
 `;
 
 const BottomGradient = styled.div`
@@ -27,10 +67,11 @@ const BottomGradient = styled.div`
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 392px;
+  width: 100%;
   height: 128px;
   background: linear-gradient(to bottom, #fedcd1, #fff7eb);
   overflow: hidden;
+  z-index: 2;
 `;
 
 const ButtonWrapper = styled.div`
@@ -43,7 +84,8 @@ const ButtonWrapper = styled.div`
 const MessageContainer = styled.div`
   position: absolute;
   top: 0;
-  left: 94px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 206px;
   height: 122px;
   display: flex;
@@ -52,6 +94,7 @@ const MessageContainer = styled.div`
   align-items: center;
   justify-content: flex-end;
   padding: 10px;
+  z-index: 2;
 `;
 
 const MessageBubble = styled.div`
@@ -90,14 +133,25 @@ const HighlightText = styled.span`
 
 const ResultsList = styled.div`
   position: absolute;
-  top: 140px;
+  top: 0px;
+  bottom: 128px;
   left: 50%;
   transform: translateX(-50%);
   width: 300px;
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding-bottom: 200px;
+  overflow-y: auto; /* Results만 스크롤 */
+  padding-bottom: 78px; /* 마지막 항목 여유공간 */
+  padding-top: 140px;
+
+  
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 const ResultCard = styled.div`
@@ -114,19 +168,26 @@ const QuestionHeader = styled.div`
   position: relative;
   width: 100%;
   min-height: 28px;
+  /* float 컨텍스트를 위한 clearfix */
+  &::after {
+    content: '';
+    display: table;
+    clear: both;
+  }
 `;
 
 const QuestionBadge = styled.div`
-  position: absolute;
-  top: 3.28px;
-  left: 3.28px;
+  float: left;
   width: 19.84px;
   height: 19.84px;
+  margin-top: 3.28px;
+  margin-right: 10.2px; /* Badge와 텍스트 사이 여유공간 */
   background-color: ${props => props.isCorrect ? '#f6c650' : '#ff8c78'};
   border-radius: 9.92px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 `;
 
 const QuestionNumber = styled.p`
@@ -139,17 +200,14 @@ const QuestionNumber = styled.p`
 `;
 
 const QuestionText = styled.p`
-  position: absolute;
-  top: -0.8px;
-  left: calc(50% - 128.799px);
-  transform: translateX(-50%);
-  width: 246.4px;
   font-family: 'VITRO_PRIDE_OTF', sans-serif;
   font-size: 16px;
   line-height: 28px;
   color: #2e2a27;
   margin: 0;
   white-space: pre-wrap;
+  /* Badge가 float로 배치되므로 텍스트가 자동으로 주변으로 흐름 */
+  /* 첫 번째 줄은 Badge 오른쪽에서 시작, 두 번째 줄부터는 왼쪽부터 시작 */
 `;
 
 const AnswersContainer = styled.div`
@@ -209,6 +267,13 @@ function QuizResult({ result, questions, onConfirm }) {
 
   return (
     <ResultContainer>
+      {/* Radial Gradient Background */}
+      <RadialGradientBackground>
+        <RadialGradientContainer>
+          <RadialGradient />
+        </RadialGradientContainer>
+      </RadialGradientBackground>
+
       {/* Result Message */}
       <MessageContainer>
         <MessageBubble>
@@ -243,9 +308,10 @@ function QuizResult({ result, questions, onConfirm }) {
               <AnswersContainer>
                 {isCorrect ? (
                   <>
-                    {/* 정답인 경우: 내가 한 답・정답 하나로 표시 */}
-                    <AnswerLabel highlight>
-                      내가 한 답・정답
+                    {/* 정답인 경우: 내가 한 답 ・정답 하나로 표시 */}
+                    <AnswerLabel>
+                      <span style={{ color: '#b4afab' }}>내가 한 답 </span>
+                      <span style={{ color: '#2e2a27' }}>・정답</span>
                     </AnswerLabel>
                     <AnswerBox isCorrect={true}>
                       <AnswerText>{userAnswer.userAnswerText}</AnswerText>
