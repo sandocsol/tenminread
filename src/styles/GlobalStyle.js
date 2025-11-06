@@ -9,6 +9,7 @@ const GlobalStyle = createGlobalStyle`
     font-weight: 100 900;
     font-style: normal;
     font-display: swap;
+    
   }
 
   /* VITRO PRIDE OTF 폰트 로드 */

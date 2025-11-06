@@ -1,5 +1,19 @@
 /**
  * localStorage 헬퍼 함수
+
+ * getStorage(key, defaultValue)
+localStorage에서 값을 읽어옴
+JSON.parse 자동 처리
+값이 없으면 기본값 반환
+에러 발생 시 기본값 반환
+
+ * setStorage(key, value)
+localStorage에 값을 저장
+JSON.stringify 자동 처리
+객체, 배열 등도 저장 가능
+
+ * removeStorage(key)
+localStorage에서 값 삭제
  */
 
 /**
