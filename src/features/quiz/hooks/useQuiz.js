@@ -2,10 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // TODO: React Query 설치 후 주석 해제
 // import { useQuery, useMutation } from '@tanstack/react-query';
-// import { quizApi } from '../../api/quizApi';
-
-// 임시: Mock 데이터 import
-import quizMockData from '../../../mock/quiz.json';
+import { quizApi } from '../../../api/quizApi';
 
 function useQuiz() {
   const { bookId } = useParams();
@@ -17,7 +14,8 @@ function useQuiz() {
     return {
       quizStatus: getStorageKey('status'),
       currentStep: getStorageKey('step'),
-      userAnswers: getStorageKey('answers')
+      userAnswers: getStorageKey('answers'),
+      submitResult: getStorageKey('submitResult')
     };
   }, [bookId]);
 
@@ -75,24 +73,49 @@ function useQuiz() {
     setStoredValue(STORAGE_KEYS.userAnswers, userAnswers);
   }, [userAnswers, STORAGE_KEYS.userAnswers]);
 
-  // TODO: React Query로 교체
-  // const { data: quizData, isLoading, isError } = useQuery({
-  //   queryKey: ['quiz', bookId],
-  //   queryFn: () => quizApi.getQuiz(bookId),
-  // });
+  // 퀴즈 데이터 상태
+  const [quizData, setQuizData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  
+  // 제출 API 응답 상태 (정답 정보 포함)
+  const [submitResult, setSubmitResult] = useState(() => 
+    getStoredValue(STORAGE_KEYS.submitResult, null)
+  );
 
-  // 임시: Mock 데이터 사용
-  const quizData = quizMockData;
-  const isLoading = false;
-  const isError = false;
+  // submitResult 변경 시 sessionStorage에 저장
+  useEffect(() => {
+    if (submitResult) {
+      setStoredValue(STORAGE_KEYS.submitResult, submitResult);
+    }
+  }, [submitResult, STORAGE_KEYS.submitResult]);
+  // eslint-disable-next-line no-unused-vars
+  const [isSubmitting, setIsSubmitting] = useState(false); // TODO: 제출 중 로딩 상태 표시에 사용
 
-  // TODO: React Query Mutation으로 교체
-  // const saveResultMutation = useMutation({
-  //   mutationFn: (resultData) => quizApi.saveResult(bookId, resultData),
-  //   onSuccess: () => {
-  //     setQuizStatus('result');
-  //   },
-  // });
+  // 퀴즈 데이터 로드
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      if (!bookId) return;
+
+      try {
+        setIsLoading(true);
+        setIsError(false);
+        // TODO: summaryId는 실제로는 다른 곳에서 받아와야 함 (현재는 임시로 1 사용)
+        const summaryId = 1; // 임시 값
+        const data = await quizApi.getQuizzesFormatted(bookId, summaryId);
+        setQuizData(data);
+      } catch (error) {
+        console.error('Failed to fetch quizzes:', error);
+        setIsError(true);
+        // 에러 발생 시 빈 데이터로 설정
+        setQuizData({ questions: [], totalQuestions: 0 });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuizzes();
+  }, [bookId]);
 
   // 현재 질문 가져오기
   const currentQuestion = useMemo(() => {
@@ -105,23 +128,39 @@ function useQuiz() {
   // 전체 문제 수
   const totalSteps = quizData?.totalQuestions || 0;
 
-  // 정답 계산 함수
+  // 정답 계산 함수 (제출 API 응답 기반)
   const calculateResult = useCallback(() => {
-    if (!quizData?.questions) return null;
+    if (!quizData?.questions || !submitResult) return null;
+
+    // 제출 API 응답의 results를 사용해서 정답 정보 매핑
+    const resultsMap = new Map();
+    submitResult.results?.forEach((result) => {
+      resultsMap.set(result.quizId, {
+        isCorrect: result.isCorrect,
+        correctChoice: result.correctChoice
+      });
+    });
 
     const processedAnswers = userAnswers.map((userAnswer) => {
       const question = quizData.questions.find(q => q.id === userAnswer.questionId);
       if (!question) return null;
 
-      const isCorrect = userAnswer.answerIndex === question.correctAnswer;
+      const resultInfo = resultsMap.get(userAnswer.questionId);
+      const isCorrect = resultInfo?.isCorrect || false;
+      const correctChoice = resultInfo?.correctChoice;
       
+      // 정답 텍스트 찾기
+      const correctAnswerText = correctChoice !== undefined && question.options[correctChoice]
+        ? question.options[correctChoice]
+        : null;
+
       return {
         questionId: question.id,
         question: question.question,
         userAnswer: userAnswer.answerIndex,
         userAnswerText: userAnswer.answerText,
-        correctAnswer: question.correctAnswer,
-        correctAnswerText: question.correctAnswerText,
+        correctAnswer: correctChoice,
+        correctAnswerText: correctAnswerText,
         isCorrect: isCorrect
       };
     }).filter(Boolean);
@@ -133,10 +172,10 @@ function useQuiz() {
       totalQuestions: totalSteps,
       userAnswers: processedAnswers
     };
-  }, [quizData, userAnswers, totalSteps]);
+  }, [quizData, userAnswers, totalSteps, submitResult]);
 
   // 답변 제출 핸들러
-  const handleSubmitAnswer = useCallback((answer) => {
+  const handleSubmitAnswer = useCallback(async (answer) => {
     setUserAnswers((prevAnswers) => {
       const newAnswers = [...prevAnswers, answer];
       
@@ -145,38 +184,40 @@ function useQuiz() {
         // 다음 문항으로 이동
         setCurrentStep(currentStep + 1);
       } else {
-        // 마지막 문항: 결과 계산 및 저장
-        // eslint-disable-next-line no-unused-vars
-        const calculatedResult = {
-          totalCorrect: newAnswers.filter((a) => {
-            const question = quizData?.questions?.find(q => q.id === a.questionId);
-            return question && a.answerIndex === question.correctAnswer;
-          }).length,
-          totalQuestions: totalSteps,
-          userAnswers: newAnswers.map((a) => {
-            const question = quizData?.questions?.find(q => q.id === a.questionId);
-            return {
-              questionId: question?.id,
-              question: question?.question,
-              userAnswer: a.answerIndex,
-              userAnswerText: a.answerText,
-              correctAnswer: question?.correctAnswer,
-              correctAnswerText: question?.correctAnswerText,
-              isCorrect: question && a.answerIndex === question.correctAnswer
-            };
-          })
+        // 마지막 문항: 정답 제출 API 호출
+        const submitAnswers = async () => {
+          try {
+            setIsSubmitting(true);
+            // TODO: summaryId는 실제로는 다른 곳에서 받아와야 함 (현재는 임시로 1 사용)
+            const summaryId = 1; // 임시 값
+            
+            // API 요청 형식으로 변환
+            const answersForApi = newAnswers.map((a) => ({
+              quizId: a.questionId,
+              submittedAnswer: a.answerIndex
+            }));
+            
+            // 정답 제출 API 호출
+            const result = await quizApi.submitQuizAnswers(bookId, summaryId, answersForApi);
+            setSubmitResult(result);
+            
+            // 결과 화면으로 이동
+            setQuizStatus('result');
+          } catch (error) {
+            console.error('Failed to submit quiz answers:', error);
+            // 에러 발생 시에도 결과 화면으로 이동 (에러 처리 필요 시 추가)
+            setQuizStatus('result');
+          } finally {
+            setIsSubmitting(false);
+          }
         };
         
-        // TODO: React Query Mutation 사용
-        // saveResultMutation.mutate(calculatedResult);
-
-        // 임시: 결과 상태 설정
-        setQuizStatus('result');
+        submitAnswers();
       }
       
       return newAnswers;
     });
-  }, [currentStep, totalSteps, quizData]);
+  }, [currentStep, totalSteps, bookId]);
 
   // 결과 확인 핸들러 (결과 화면에서 스트릭 화면으로)
   const handleShowStreak = useCallback(() => {
@@ -189,6 +230,7 @@ function useQuiz() {
     removeStoredValue(STORAGE_KEYS.quizStatus);
     removeStoredValue(STORAGE_KEYS.currentStep);
     removeStoredValue(STORAGE_KEYS.userAnswers);
+    removeStoredValue(STORAGE_KEYS.submitResult);
     
     // 뷰어 페이지로 이동
     navigate(`/reader/${bookId}`);
@@ -202,15 +244,16 @@ function useQuiz() {
     return calculateResult();
   }, [quizStatus, calculateResult]);
 
-  // 스트릭 정보 (결과 저장 API 응답에서 받아올 수도 있음)
+  // 스트릭 정보 (제출 API 응답에서 받아오기)
   const streakInfo = useMemo(() => {
     if (quizStatus !== 'streak') {
       return null;
     }
     
-    // TODO: API 응답에서 받아오기
-    // 임시: Mock 데이터 사용
-    return quizMockData.streakInfo || {
+    // TODO: 제출 API 응답에 streakInfo가 포함되면 사용
+    // 현재는 제출 API 응답에 streakInfo가 없으므로 임시 값 사용
+    // submitResult?.streakInfo || 
+    return {
       currentStreak: 3,
       quote: '삶이 있는 한 희망은 있다',
       author: '키케로',
