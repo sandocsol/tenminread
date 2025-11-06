@@ -297,6 +297,16 @@ const CalendarDateText = styled.div`
   justify-content: center;
 `;
 
+const StreakCheckIcon = styled.img`
+  position: absolute;
+  left: 55%;
+  top: 8%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+`;
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -311,7 +321,7 @@ function QuizStreak({ streakCount, quote, author, calendarDates, onConfirm }) {
   // 요일 이름 배열
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   
-  // 캘린더 날짜가 없으면 오늘 기준으로 일주일 생성
+  // 캘린더 날짜가 없으면 오늘 기준으로 일주일 생성 (월요일~일요일)
   const getCalendarDates = () => {
     if (calendarDates && calendarDates.length > 0) {
       return calendarDates.map(date => {
@@ -324,16 +334,35 @@ function QuizStreak({ streakCount, quote, author, calendarDates, onConfirm }) {
     }
     
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // 시간을 0으로 설정하여 날짜 비교 정확도 향상
+    
+    // 오늘이 포함된 주의 월요일 찾기
+    const dayOfWeek = today.getDay(); // 0(일) ~ 6(토)
+    const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 월요일을 기준으로 한 날짜 차이
+    
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - daysFromMonday);
+    
     const dates = [];
-    for (let i = -3; i <= 3; i++) {
-      const date = new Date(today);
-      date.setDate(date.getDate() + i);
-      // 연속 학습 날짜: 오늘부터 과거로 streakCount일까지 (i가 0 또는 음수이고, 절댓값이 streakCount보다 작으면)
-      const isStreak = i <= 0 && Math.abs(i) < (displayStreak || 0);
+    const todayStr = today.toDateString(); // 오늘 날짜를 문자열로 변환하여 비교
+    
+    // 월요일부터 일요일까지 7일 생성
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+      
+      const dateStr = date.toDateString();
+      const isToday = dateStr === todayStr;
+      
+      // 연속 학습 날짜: 오늘부터 과거로 streakCount일까지
+      // 오늘을 포함하여 과거로 streakCount일이 연속 학습 날짜
+      const daysDiff = Math.floor((today - date) / (1000 * 60 * 60 * 24)); // 날짜 차이 계산
+      const isStreak = daysDiff >= 0 && daysDiff < displayStreak;
+      
       dates.push({
         day: date.getDate(),
         dayOfWeek: dayNames[date.getDay()],
-        isToday: i === 0,
+        isToday: isToday,
         isStreak: isStreak
       });
     }
@@ -381,6 +410,7 @@ function QuizStreak({ streakCount, quote, author, calendarDates, onConfirm }) {
                         <>
                           <TodayBackground />
                           <TodayGradient />
+                          <StreakCheckIcon src="/assets/streak_check.svg" alt="streak check" />
                           <CalendarDateText>{date.day || date}</CalendarDateText>
                         </>
                       ) : date.isStreak ? (
