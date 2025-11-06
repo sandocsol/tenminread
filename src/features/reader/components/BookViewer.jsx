@@ -17,7 +17,7 @@ const BookContentContainer = styled.div`
 `;
 
 const ChapterTitle = styled.p`
-  font-family: 'Pretendard Variable', sans-serif;
+  font-family:  sans-serif;
   font-weight: 600;
   font-size: 12px;
   line-height: normal;
@@ -27,7 +27,7 @@ const ChapterTitle = styled.p`
 `;
 
 const ParagraphContainer = styled.div`
-  font-family: 'Pretendard Variable', sans-serif;
+  font-family: sans-serif;
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
@@ -85,4 +85,3 @@ function BookViewer({ text, chapterTitle }) {
 }
 
 export default BookViewer;
-
