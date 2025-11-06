@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import BookViewer from '../features/reader/components/BookViewer';
 import ProgressBar from '../features/reader/components/ProgressBar';
+import ReaderControls from '../features/reader/components/ReaderControls';
 import useReadingProgress from '../features/reader/hooks/useReadingProgress';
 import bookContentData from '../mock/bookContent.json';
 
@@ -11,7 +12,7 @@ const ReaderPageContainer = styled.div`
   width: 100%;
   height: 100vh; /* 폴백 */
   height: 100dvh; /* 주소창 변화 대응 */
-  background-color: #ffffff;
+  background-color: ${props => props.theme === 'dark' ? '#2e2a27' : '#ffffff'};
   overflow: hidden; /* 전체 컨테이너는 스크롤 방지 */
   box-sizing: border-box;
   display: flex;
@@ -41,7 +42,7 @@ function ReaderPage() {
   const [contentKey, setContentKey] = useState(0); // 컨텐츠 로드 시 리스너 재등록을 위한 키
 
   // useReadingProgress 훅 사용
-  const { progress, theme } = useReadingProgress(bookId || 1, containerRef, contentKey);
+  const { progress, theme, fontSize, changeFontSize, toggleTheme } = useReadingProgress(bookId || 1, containerRef, contentKey);
 
   useEffect(() => {
     // TODO: 실제 API 호출로 교체
@@ -54,15 +55,22 @@ function ReaderPage() {
   // BookViewer props를 메모이제이션하여 불필요한 리렌더링 방지
   const bookViewerProps = useMemo(() => ({
     text: bookContent?.summaryText || '',
-    chapterTitle: 'Chapter1'
-  }), [bookContent?.summaryText]);
+    chapterTitle: 'Chapter1',
+    fontSize,
+    theme
+  }), [bookContent?.summaryText, fontSize, theme]);
 
   if (!bookContent) {
     return <div>Loading...</div>;
   }
 
   return (
-    <ReaderPageContainer>
+    <ReaderPageContainer theme={theme}>
+      <ReaderControls 
+        theme={theme}
+        onChangeFontSize={changeFontSize}
+        onToggleTheme={toggleTheme}
+      />
       <ContentWrapper ref={containerRef}>
         <BookViewer {...bookViewerProps} />
       </ContentWrapper>

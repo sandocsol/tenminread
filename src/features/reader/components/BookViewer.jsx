@@ -21,7 +21,7 @@ const ChapterTitle = styled.p`
   font-weight: 600;
   font-size: 12px;
   line-height: normal;
-  color: #2e2a27;
+  color: ${props => props.theme === 'dark' ? '#f8f3e8' : '#2e2a27'};
   margin: 0;
   width: 100%;
 `;
@@ -29,9 +29,9 @@ const ChapterTitle = styled.p`
 const ParagraphContainer = styled.div`
   font-family: sans-serif;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
-  color: #2e2a27;
+  font-size: ${props => (props.fontSize / 100) * 16}px;
+  line-height: ${props => (props.fontSize / 100) * 24}px;
+  color: ${props => props.theme === 'dark' ? '#f8f3e8' : '#2e2a27'};
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -57,8 +57,10 @@ const Paragraph = styled.p`
  * 
  * @param {string} text - 렌더링할 순수 텍스트 (줄바꿈 문자로 문단 구분)
  * @param {string} chapterTitle - 챕터 제목 (선택사항)
+ * @param {number} fontSize - 폰트 크기 비율 (기본 100)
+ * @param {string} theme - 테마 ('light' | 'dark')
  */
-function BookViewer({ text, chapterTitle }) {
+function BookViewer({ text, chapterTitle, fontSize = 100, theme = 'light' }) {
   if (!text) {
     return null;
   }
@@ -72,8 +74,8 @@ function BookViewer({ text, chapterTitle }) {
 
   return (
     <BookContentContainer>
-      {chapterTitle && <ChapterTitle>{chapterTitle}</ChapterTitle>}
-      <ParagraphContainer>
+      {chapterTitle && <ChapterTitle theme={theme}>{chapterTitle}</ChapterTitle>}
+      <ParagraphContainer fontSize={fontSize} theme={theme}>
         {paragraphs.map((paragraph, index) => (
           <Paragraph key={index}>
             {paragraph}
