@@ -33,8 +33,8 @@ const GradientOverlay = styled.div`
   position: absolute;
   top: 892px;
   left: 849px;
-  width: 397px;
-  height: 692px;
+  width: 100%;
+  height: 100vh;
   background: linear-gradient(
     to bottom,
     rgba(255, 255, 255, 0),
@@ -44,7 +44,7 @@ const GradientOverlay = styled.div`
 
 const StreakNumberContainer = styled.div`
   position: absolute;
-  top: 731px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 109px;
@@ -64,23 +64,25 @@ const StreakBar = styled.div`
 const StreakBarSegment1 = styled.div`
   position: absolute;
   top: 254.1px;
-  left: 40px;
+  left: 71px;
   width: 9px;
   height: 31px;
   background-color: #e3a300;
   opacity: 0.8;
-  transform: rotate(90deg) scaleY(-1);
+  transform: rotate(90deg);
+  transform-origin: top left;
 `;
 
 const StreakBarSegment2 = styled.div`
   position: absolute;
   top: 379.1px;
-  left: 40px;
+  left: 70px;
   width: 9px;
   height: 30px;
   background-color: #e3a300;
   opacity: 0.8;
-  transform: rotate(90deg) scaleY(-1);
+  transform: rotate(90deg);
+  transform-origin: top left;
 `;
 
 const StreakCircle = styled.div`
@@ -91,18 +93,19 @@ const StreakCircle = styled.div`
   height: 117px;
   background-color: #ffecbd;
   border-radius: 128.409px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
 const StreakNumber = styled.p`
+  position: absolute;
+  left: 39.18px;
+  top: 303px;
   font-family: 'Pretendard Variable', sans-serif;
   font-weight: 600;
   font-size: 45px;
   line-height: 35px;
   color: #ffc432;
   margin: 0;
+  white-space: pre;
 `;
 
 const QuoteContainer = styled.div`
@@ -130,8 +133,9 @@ const AuthorText = styled.p`
 
 const BottomSection = styled.div`
   position: absolute;
-  top: 614px;
-  left: 31px;
+  bottom: 57px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 334px;
   height: 182px;
 `;
@@ -247,15 +251,16 @@ function QuizStreak({ streakCount, quote, author, calendarDates, onConfirm }) {
       {/* Background */}
       <BackgroundWrapper>
         <GradientOverlay />
-        <StreakNumberContainer>
-          <StreakBar />
-          <StreakBarSegment1 />
-          <StreakBarSegment2 />
-          <StreakCircle>
-            <StreakNumber>{displayStreak}</StreakNumber>
-          </StreakCircle>
-        </StreakNumberContainer>
       </BackgroundWrapper>
+
+      {/* Streak Number */}
+      <StreakNumberContainer>
+        <StreakBar />
+        <StreakBarSegment1 />
+        <StreakBarSegment2 />
+        <StreakCircle />
+        <StreakNumber>{displayStreak}</StreakNumber>
+      </StreakNumberContainer>
 
       {/* Quote */}
       <QuoteContainer>
