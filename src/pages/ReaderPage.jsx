@@ -12,9 +12,16 @@ const ReaderPageContainer = styled.div`
   height: 100vh; /* 폴백 */
   height: 100dvh; /* 주소창 변화 대응 */
   background-color: #ffffff;
+  overflow: hidden; /* 전체 컨테이너는 스크롤 방지 */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ContentWrapper = styled.div`
+  flex: 1;
   overflow-x: hidden; /* 가로 스크롤 방지 */
   overflow-y: auto; /* 세로 스크롤 허용 */
-  box-sizing: border-box;
   padding: 20px;
   display: flex;
   justify-content: center;
@@ -55,12 +62,12 @@ function ReaderPage() {
   }
 
   return (
-    <>
-      <ReaderPageContainer ref={containerRef}>
+    <ReaderPageContainer>
+      <ContentWrapper ref={containerRef}>
         <BookViewer {...bookViewerProps} />
-      </ReaderPageContainer>
+      </ContentWrapper>
       <ProgressBar progress={progress} theme={theme} />
-    </>
+    </ReaderPageContainer>
   );
 }
 

@@ -2,12 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 const ProgressBarWrapper = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   width: 100%;
   height: 50px;
+  flex-shrink: 0; /* flex 컨테이너에서 축소 방지 */
   background-color: ${props => props.theme === 'dark' ? '#373330' : '#fefbf2'};
   display: flex;
   align-items: center;
@@ -17,7 +15,7 @@ const ProgressBarWrapper = styled.div`
 
 const ProgressBarContainer = styled.div`
   position: relative;
-  width: 393px;
+  width: 100%;
   height: 12px;
 `;
 
