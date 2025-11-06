@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // TODO: React Query 설치 후 주석 해제
 // import { useQuery, useMutation } from '@tanstack/react-query';
@@ -11,10 +11,69 @@ function useQuiz() {
   const { bookId } = useParams();
   const navigate = useNavigate();
 
-  // 핵심 상태
-  const [quizStatus, setQuizStatus] = useState('quiz'); // 'quiz' | 'result' | 'streak'
-  const [currentStep, setCurrentStep] = useState(0);
-  const [userAnswers, setUserAnswers] = useState([]);
+  // 1. 고유한 스토리지 키 정의 (bookId 변경 시에만 재생성)
+  const STORAGE_KEYS = useMemo(() => {
+    const getStorageKey = (key) => `quiz_${bookId}_${key}`;
+    return {
+      quizStatus: getStorageKey('status'),
+      currentStep: getStorageKey('step'),
+      userAnswers: getStorageKey('answers')
+    };
+  }, [bookId]);
+
+  // sessionStorage에서 초기값 읽어오는 헬퍼 함수
+  const getStoredValue = (key, defaultValue) => {
+    try {
+      const item = sessionStorage.getItem(key);
+      if (item === null) return defaultValue;
+      return JSON.parse(item);
+    } catch (error) {
+      console.error(`Error reading from sessionStorage for key ${key}:`, error);
+      return defaultValue;
+    }
+  };
+
+  // sessionStorage에 값 저장하는 헬퍼 함수
+  const setStoredValue = (key, value) => {
+    try {
+      sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error(`Error writing to sessionStorage for key ${key}:`, error);
+    }
+  };
+
+  // sessionStorage에서 값 삭제하는 헬퍼 함수
+  const removeStoredValue = (key) => {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (error) {
+      console.error(`Error removing from sessionStorage for key ${key}:`, error);
+    }
+  };
+
+  // 2. useState의 초기값 설정 (Lazy Initializer 사용)
+  const [quizStatus, setQuizStatus] = useState(() => 
+    getStoredValue(STORAGE_KEYS.quizStatus, 'quiz')
+  ); // 'quiz' | 'result' | 'streak'
+  const [currentStep, setCurrentStep] = useState(() => 
+    getStoredValue(STORAGE_KEYS.currentStep, 0)
+  );
+  const [userAnswers, setUserAnswers] = useState(() => 
+    getStoredValue(STORAGE_KEYS.userAnswers, [])
+  );
+
+  // 3. useEffect로 상태 변경 시 저장
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.quizStatus, quizStatus);
+  }, [quizStatus, STORAGE_KEYS.quizStatus]);
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.currentStep, currentStep);
+  }, [currentStep, STORAGE_KEYS.currentStep]);
+
+  useEffect(() => {
+    setStoredValue(STORAGE_KEYS.userAnswers, userAnswers);
+  }, [userAnswers, STORAGE_KEYS.userAnswers]);
 
   // TODO: React Query로 교체
   // const { data: quizData, isLoading, isError } = useQuery({
@@ -126,9 +185,14 @@ function useQuiz() {
 
   // 퀴즈 종료 핸들러 (스트릭 화면에서)
   const handleEndQuiz = useCallback(() => {
+    // 4. 퀴즈 종료 시 정리: sessionStorage에 저장된 값 삭제
+    removeStoredValue(STORAGE_KEYS.quizStatus);
+    removeStoredValue(STORAGE_KEYS.currentStep);
+    removeStoredValue(STORAGE_KEYS.userAnswers);
+    
     // 뷰어 페이지로 이동
     navigate(`/reader/${bookId}`);
-  }, [navigate, bookId]);
+  }, [navigate, bookId, STORAGE_KEYS]);
 
   // 결과 객체
   const result = useMemo(() => {
