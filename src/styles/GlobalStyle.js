@@ -33,12 +33,29 @@ const GlobalStyle = createGlobalStyle`
     min-height: 100%;
     overflow-x: hidden; /* 가로 스크롤 방지 */
     overflow-y: auto; /* 세로 스크롤 허용 */
+    
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   #root {
     height: 100%;
     width: 100%;
     overflow-x: hidden; /* 가로 스크롤 방지 */
+    
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  #root::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 `;
 
