@@ -1,0 +1,33 @@
+{
+  "bookId": 1,
+  "seq": 1,
+  "totalQuizzes": 5,
+  "correctCount": 2,
+  "results": [
+    {
+      "quizId": 1,
+      "isCorrect": true,
+      "correctChoice": 4
+    },
+    {
+      "quizId": 2,
+      "isCorrect": true,
+      "correctChoice": 2
+    },
+    {
+      "quizId": 3,
+      "isCorrect": false,
+      "correctChoice": 1
+    },
+    {
+      "quizId": 4,
+      "isCorrect": false,
+      "correctChoice": 3
+    },
+    {
+      "quizId": 5,
+      "isCorrect": false,
+      "correctChoice": 1
+    }
+  ]
+}
