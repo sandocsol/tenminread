@@ -1,4 +1,5 @@
-import styled from 'styled-components';
+import { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 import Button from '../../../components/Button';
 
 const ResultContainer = styled.div`
@@ -97,6 +98,17 @@ const MessageContainer = styled.div`
   z-index: 2;
 `;
 
+const slideDown = keyframes`
+  from {
+    transform: translateY(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
+
 const MessageBubble = styled.div`
   width: 158px;
   height: 43px;
@@ -106,6 +118,9 @@ const MessageBubble = styled.div`
   padding: 10px 20px;
   border-radius: 30px;
   box-shadow: 0px 2px 15px 0px rgba(0, 0, 0, 0.05);
+  animation: ${props => props.isAnimated ? slideDown : 'none'} 300ms ease-out;
+  animation-delay: 200ms;
+  animation-fill-mode: both;
 `;
 
 const MessageInner = styled.div`
@@ -254,6 +269,13 @@ const AnswerText = styled.p`
 `;
 
 function QuizResult({ result, questions, onConfirm }) {
+  const [isAnimated, setIsAnimated] = useState(false);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트된 후 애니메이션 시작
+    setIsAnimated(true);
+  }, []);
+
   if (!result || !result.userAnswers) {
     return <div>Loading results...</div>;
   }
@@ -276,7 +298,7 @@ function QuizResult({ result, questions, onConfirm }) {
 
       {/* Result Message */}
       <MessageContainer>
-        <MessageBubble>
+        <MessageBubble isAnimated={isAnimated}>
           <MessageInner>
             <MessageText>
               <HighlightText>{totalQuestions}</HighlightText>개 중{' '}
