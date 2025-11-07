@@ -47,10 +47,10 @@ export const bookApi = {
     // 현재는 목데이터 사용
     return new Promise((resolve) => {
       // API 호출 시뮬레이션을 위한 약간의 지연
-      setTimeout(() => {
-        // 목데이터를 그대로 반환 (이미 API 응답 형식)
-        resolve(bookContentData);
-      }, 300);
+
+      // 목데이터를 그대로 반환 (이미 API 응답 형식)
+      resolve(bookContentData);
+  
     });
 
     // 실제 API 호출 코드 (주석 처리)
