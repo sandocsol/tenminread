@@ -63,7 +63,6 @@ const BookCover = styled.div`
   width: 62px;
   height: 76px;
   flex-shrink: 0;
-  border-radius: 4px;
   overflow: hidden;
   background-color: ${props => props.theme === 'dark' ? '#3a3633' : '#f5f5f5'};
   

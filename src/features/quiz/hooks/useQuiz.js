@@ -102,7 +102,7 @@ function useQuiz() {
         setIsError(false);
         // TODO: summaryId는 실제로는 다른 곳에서 받아와야 함 (현재는 임시로 1 사용)
         const summaryId = 1; // 임시 값
-        const data = await quizApi.getQuizzesFormatted(bookId, summaryId);
+        const data = await quizApi.getQuizzes(bookId, summaryId);
         setQuizData(data);
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);

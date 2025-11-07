@@ -14,7 +14,7 @@ export const quizApi = {
    * 퀴즈 문제와 보기 조회
    * @param {string|number} bookId - 책 ID
    * @param {string|number} summaryId - 요약 ID
-   * @returns {Promise} 퀴즈 문제 배열 (API 응답 형식)
+   * @returns {Promise} 현재 사용하는 퀴즈 형식 객체 { questions, totalQuestions }
    */
   getQuizzes: async (bookId, summaryId) => { // eslint-disable-line no-unused-vars
     // TODO: 실제 API 호출로 교체
@@ -22,34 +22,10 @@ export const quizApi = {
     return new Promise((resolve) => {
       // API 호출 시뮬레이션을 위한 약간의 지연
       setTimeout(() => {
-        // 목데이터를 그대로 반환 (이미 API 응답 형식)
-        resolve(quizMockData);
+        // 목데이터를 현재 사용하는 형식으로 변환하여 반환
+        resolve(transformApiResponseToQuizFormat(quizMockData));
       }, 300);
     });
-
-    // 실제 API 호출 코드 (주석 처리)
-    // try {
-    //   const response = await axios.get(
-    //     `${API_BASE_URL}/books/${bookId}/summary/${summaryId}/quizzes`
-    //   );
-    //   return response.data;
-    // } catch (error) {
-    //   console.error('Failed to fetch quizzes:', error);
-    //   throw error;
-    // }
-  },
-
-  /**
-   * 퀴즈 문제와 보기 조회 (현재 사용하는 형식으로 변환하여 반환)
-   * @param {string|number} bookId - 책 ID
-   * @param {string|number} summaryId - 요약 ID
-   * @returns {Promise} 현재 사용하는 퀴즈 형식 객체
-   */
-  getQuizzesFormatted: async (bookId, summaryId) => {
-    // TODO: 실제 API 호출로 교체
-    // 현재는 목데이터 사용
-    const apiResponse = await quizApi.getQuizzes(bookId, summaryId);
-    return transformApiResponseToQuizFormat(apiResponse);
 
     // 실제 API 호출 코드 (주석 처리)
     // try {
