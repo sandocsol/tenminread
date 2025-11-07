@@ -34,6 +34,13 @@ const PhoneFrame = styled.div`
   overflow-y: auto; /* 세로 스크롤 허용 */
   position: relative; /* 내부 absolute 기준 */
   box-sizing: border-box;
+  
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 /* 모바일 전체 화면 (실제 앱에서 사용) */
@@ -46,6 +53,13 @@ const MobileFrame = styled.div`
   overflow-y: auto; /* 세로 스크롤 허용 */
   position: relative;
   box-sizing: border-box;
+  
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
   
   /* iOS 안전영역 - 데스크톱/웹에서는 0이므로 문제 없음 */
   padding-top: max(0px, env(safe-area-inset-top));
