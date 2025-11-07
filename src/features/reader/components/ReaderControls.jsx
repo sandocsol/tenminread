@@ -102,9 +102,12 @@ const FontSizeContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 10px;
+  position: relative;
 `;
 
-const FontSizeButton = styled.button`
+const FontSizeClickArea = styled.button`
+  flex: 1;
+  height: 100%;
   background: none;
   border: none;
   padding: 0;
@@ -127,6 +130,22 @@ const FontSizeButton = styled.button`
   }
 `;
 
+const FontSizeButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  pointer-events: none; /* 부모 FontSizeClickArea가 클릭을 처리 */
+  
+  &:focus {
+    outline: none;
+  }
+`;
+
 const FontSizeButtonMinus = styled(FontSizeButton)`
   width: 12px;
   height: 2.5px;
@@ -136,6 +155,8 @@ const FontSizeIcon = styled.img`
   width: 15.37px;
   height: 11.41px;
   opacity: 0.6;
+  pointer-events: none;
+  flex-shrink: 0;
 `;
 
 const FontSizeButtonPlus = styled(FontSizeButton)`
@@ -193,31 +214,40 @@ function ReaderControls({
       <RightSection>
         <div style={{ width: '95px', height: '35px' }}>
           <FontSizeContainer theme={theme}>
-            <FontSizeButtonMinus 
+            {/* 왼쪽 영역: 클릭하면 폰트 크기 증가 */}
+            <FontSizeClickArea 
               onClick={(e) => {
                 e.stopPropagation();
                 handleFontSizeChange(-10);
               }}
               aria-label="폰트 크기 감소"
             >
-              <IconImage 
-                src={theme === 'dark' ? '/assets/font_reduce_dark.svg' : '/assets/font_reduce_light.svg'} 
-                alt="폰트 크기 감소"
-              />
-            </FontSizeButtonMinus>
+              <FontSizeButtonMinus>
+                <IconImage 
+                  src={theme === 'dark' ? '/assets/font_reduce_dark.svg' : '/assets/font_reduce_light.svg'} 
+                  alt="폰트 크기 감소"
+                />
+              </FontSizeButtonMinus>
+            </FontSizeClickArea>
+                        
+            {/* 중간 영역: 아이콘만 표시, 클릭 불가 */}
             <FontSizeIcon src="/assets/font_size_icon.svg" alt="폰트 크기" />
-            <FontSizeButtonPlus 
+            
+            {/* 오른쪽 영역: 클릭하면 폰트 크기 증가가 */}
+            <FontSizeClickArea 
               onClick={(e) => {
                 e.stopPropagation();
                 handleFontSizeChange(10);
               }}
               aria-label="폰트 크기 증가"
             >
-              <IconImage 
-                src={theme === 'dark' ? '/assets/font_increase_dark.svg' : '/assets/font_increase_light.svg'} 
-                alt="폰트 크기 증가"
-              />
-            </FontSizeButtonPlus>
+              <FontSizeButtonPlus>
+                <IconImage 
+                  src={theme === 'dark' ? '/assets/font_increase_dark.svg' : '/assets/font_increase_light.svg'} 
+                  alt="폰트 크기 증가"
+                />
+              </FontSizeButtonPlus>
+            </FontSizeClickArea>
           </FontSizeContainer>
         </div>
         
