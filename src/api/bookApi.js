@@ -64,5 +64,67 @@ export const bookApi = {
     //   throw error;
     // }
   },
+
+  /**
+   * 책 목차 조회
+   * @param {string|number} bookId - 책 ID
+   * @returns {Promise} 책 목차 객체 { bookId, toc: string }
+   */
+  getBookIndex: async (bookId) => { // eslint-disable-line no-unused-vars
+    // TODO: 실제 API 호출로 교체
+    // 현재는 목데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 목데이터 반환 (API 응답 형식)
+        resolve({
+          bookId: Number(bookId),
+          toc: '1. 두 세계\n2. 카인\n3. 예수는 도둑과 함께 십자가에 못 박',
+        });
+      }, 300);
+    });
+
+    // 실제 API 호출 코드 (주석 처리)
+    // try {
+    //   const response = await axios.get(`${API_BASE_URL}/book/${bookId}/index`);
+    //   return response.data;
+    // } catch (error) {
+    //   console.error('Failed to fetch book index:', error);
+    //   throw error;
+    // }
+  },
+
+  /**
+   * 즐겨찾기 등록/해제
+   * @param {string|number} bookId - 책 ID
+   * @param {boolean} isFavorited - 즐겨찾기 상태
+   * @returns {Promise} 즐겨찾기 상태 객체 { bookId, userId, isFavorited/favorited }
+   */
+  toggleFavorite: async (bookId, isFavorited) => { // eslint-disable-line no-unused-vars
+    // TODO: 실제 API 호출로 교체
+    // 현재는 목데이터 사용
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // 목데이터 반환 (API 응답 형식)
+        resolve({
+          bookId: Number(bookId),
+          userId: 1, // TODO: 실제 사용자 ID 사용
+          isFavorited: !isFavorited,
+        });
+      }, 200);
+    });
+
+    // 실제 API 호출 코드 (주석 처리)
+    // try {
+    //   const response = await axios.post(`${API_BASE_URL}/book/${bookId}/favorites`, {
+    //     bookId: Number(bookId),
+    //     userId: getCurrentUserId(), // 실제 사용자 ID 가져오기
+    //     isFavorited: !isFavorited,
+    //   });
+    //   return response.data;
+    // } catch (error) {
+    //   console.error('Failed to toggle favorite:', error);
+    //   throw error;
+    // }
+  },
 };
 
