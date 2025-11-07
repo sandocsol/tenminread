@@ -35,8 +35,8 @@ const router = createBrowserRouter([
       
       // ⭐️ 책 읽기 및 퀴즈 기능
       { path: 'book/:bookId', element: <BookDetailPage /> },
-      { path: 'reader/:bookId', element: <ReaderPage /> }, // 👈
-      { path: 'quiz/:bookId', element: <QuizPage /> },     // 👈
+      { path: 'reader/:bookId/:seq', element: <ReaderPage /> }, // 👈 seq는 요약 순서 (summaryId)
+      { path: 'quiz/:bookId/:summaryId', element: <QuizPage /> },     // 👈 summaryId는 seq와 동일
 
       // 기타 페이지
       { path: 'my-library', element: <MyLibraryPage /> },

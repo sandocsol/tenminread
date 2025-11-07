@@ -16,13 +16,6 @@ const PageContainer = styled.div`
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  
-  /* 스크롤바 숨기기 */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
 `;
 
 const TopSection = styled.div`
@@ -430,6 +423,7 @@ function BookDetailPage() {
   const { 
     bookData, 
     bookTOC, 
+    readingProgress,
     isLoading, 
     isTOCLoading, 
     isFavorited, 
@@ -457,7 +451,10 @@ function BookDetailPage() {
 
   const handleRead = () => {
     if (bookData?.bookId) {
-      navigate(`/reader/${bookData.bookId}`);
+      // 독서 진행 상황에서 다음에 읽을 seq 가져오기
+      // readingProgress가 있으면 사용, 없으면 기본값 1 사용
+      const seq = readingProgress?.nextSeq || 1;
+      navigate(`/reader/${bookData.bookId}/${seq}`);
     }
   };
 

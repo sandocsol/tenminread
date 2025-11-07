@@ -8,7 +8,7 @@ import ProgressBar from '../features/reader/components/ProgressBar';
 import ReaderControls from '../features/reader/components/ReaderControls';
 import useReadingProgress from '../features/reader/hooks/useReadingProgress';
 import { bookApi } from '../api/bookApi';
-import bookContentData from '../mock/bookContent.json';
+// import bookContentData from '../mock/bookContent.json'; // 실제 API 연동으로 인해 주석 처리
 
 const ReaderPageContainer = styled.div`
   position: relative;
@@ -40,7 +40,7 @@ const ContentWrapper = styled.div`
 `;
 
 function ReaderPage() {
-  const { bookId } = useParams();
+  const { bookId, seq } = useParams();
   const [bookContent, setBookContent] = useState(null);
   const [bookInfo, setBookInfo] = useState(null);
   const [isLoadingBookInfo, setIsLoadingBookInfo] = useState(true);
@@ -70,13 +70,25 @@ function ReaderPage() {
     fetchBookInfo();
   }, [bookId]);
 
+  // 책 요약(본문) API 호출
   useEffect(() => {
-    // TODO: 실제 API 호출로 교체
-    // 현재는 목데이터 사용
-    setBookContent(bookContentData);
-    // 컨텐츠가 로드되면 키를 변경하여 스크롤 리스너 재등록
-    setContentKey(prev => prev + 1);
-  }, []);
+    const fetchBookSummary = async () => {
+      if (!bookId || !seq) return;
+      
+      try {
+        const data = await bookApi.getBookSummary(bookId, seq);
+        setBookContent(data);
+        // 컨텐츠가 로드되면 키를 변경하여 스크롤 리스너 재등록
+        setContentKey(prev => prev + 1);
+      } catch (error) {
+        console.error('Failed to fetch book summary:', error);
+        // 에러 발생 시 빈 내용으로 설정하여 UI가 깨지지 않도록 함
+        setBookContent({ summaryText: '', bookId: Number(bookId), seq: Number(seq), version: 'v1' });
+      }
+    };
+
+    fetchBookSummary();
+  }, [bookId, seq]);
 
   // BookViewer props를 메모이제이션하여 불필요한 리렌더링 방지
   const bookViewerProps = useMemo(() => ({
@@ -103,7 +115,7 @@ function ReaderPage() {
           <BookInfoHeader
             author={bookInfo.author}
             title={bookInfo.title}
-            day={bookInfo.day || 1} // TODO: 실제 일차 정보는 독서 진행 상황 API에서 받아오기
+            day={bookInfo.day || 1}
             coverImage={bookInfo.coverImage || bookInfo.bookCover}
             theme={theme}
           />
@@ -112,6 +124,7 @@ function ReaderPage() {
         {bookContent && (
           <CompleteButton 
             bookId={bookId} 
+            summaryId={seq}
             theme={theme}
           />
         )}

@@ -6,7 +6,9 @@ function HomePage() {
 
   const handleGoToReader = () => {
     // bookId 1로 이동 (실제로는 선택한 책의 ID를 사용)
-    navigate('/reader/1');
+    // TODO: 실제 독서 진행 상황에 따라 seq 값을 가져와야 함 (현재는 기본값 1 사용)
+    const seq = 1; // 첫 번째 요약부터 시작
+    navigate(`/reader/1/${seq}`);
   };
 
   const handleGoToBookDetail = () => {

@@ -102,15 +102,16 @@ const CompleteButtonText = styled.span`
  * 독서 완료 후 퀴즈 풀기 및 독서 완료 기능을 제공합니다.
  * 
  * @param {string} bookId - 현재 읽고 있는 아티클의 고유 ID
+ * @param {string} summaryId - 현재 읽고 있는 요약의 seq (summaryId)
  * @param {string} theme - 테마 ('light' | 'dark')
  * @param {function} onComplete - 독서 완료 버튼 클릭 시 호출되는 콜백 함수 (선택사항)
  */
-function CompleteButtonComponent({ bookId, theme = 'light', onComplete }) {
+function CompleteButtonComponent({ bookId, summaryId, theme = 'light', onComplete }) {
   const navigate = useNavigate();
 
   const handleQuizClick = () => {
-    if (bookId) {
-      navigate(`/quiz/${bookId}`);
+    if (bookId && summaryId) {
+      navigate(`/quiz/${bookId}/${summaryId}`);
     }
   };
 

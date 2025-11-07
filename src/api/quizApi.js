@@ -1,10 +1,9 @@
-// eslint-disable-next-line no-unused-vars
 import axios from 'axios';
-import quizMockData from '../mock/quiz.json';
-import quizSubmitResponseMockData from '../mock/quizSubmitResponse.json';
+// import quizMockData from '../mock/quiz.json'; // 실제 API 연동으로 인해 주석 처리
+// import quizSubmitResponseMockData from '../mock/quizSubmitResponse.json'; // 실제 API 연동으로 인해 주석 처리
 
 // 실제 API 연동 시 사용할 BASE URL
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 /**
  * 퀴즈 API
@@ -16,26 +15,17 @@ export const quizApi = {
    * @param {string|number} summaryId - 요약 ID
    * @returns {Promise} 현재 사용하는 퀴즈 형식 객체 { questions, totalQuestions }
    */
-  getQuizzes: async (bookId, summaryId) => { // eslint-disable-line no-unused-vars
-    // TODO: 실제 API 호출로 교체
-    // 현재는 목데이터 사용
-    return new Promise((resolve) => {
-      // API 호출 시뮬레이션을 위한 약간의 지연
-        // 목데이터를 현재 사용하는 형식으로 변환하여 반환
-        resolve(transformApiResponseToQuizFormat(quizMockData));
-    });
-
-    // 실제 API 호출 코드 (주석 처리)
-    // try {
-    //   const response = await axios.get(
-    //     `${API_BASE_URL}/books/${bookId}/summary/${summaryId}/quizzes`
-    //   );
-    //   // API 응답을 현재 사용하는 형식으로 변환하여 반환
-    //   return transformApiResponseToQuizFormat(response.data);
-    // } catch (error) {
-    //   console.error('Failed to fetch quizzes:', error);
-    //   throw error;
-    // }
+  getQuizzes: async (bookId, summaryId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/books/${bookId}/summary/${summaryId}/quizzes`
+      );
+      // API 응답을 현재 사용하는 형식으로 변환하여 반환
+      return transformApiResponseToQuizFormat(response.data);
+    } catch (error) {
+      console.error('Failed to fetch quizzes:', error);
+      throw error;
+    }
   },
 
   /**
@@ -45,26 +35,17 @@ export const quizApi = {
    * @param {Array<object>} answers - 제출할 정답 배열 [{ quizId: number, submittedAnswer: number }, ...]
    * @returns {Promise<object>} 제출 결과 { bookId, seq, totalQuizzes, correctCount, results }
    */
-  submitQuizAnswers: async (bookId, summaryId, answers) => { // eslint-disable-line no-unused-vars
-    // TODO: 실제 API 호출로 교체
-    // 현재는 목데이터 사용
-    return new Promise((resolve) => {
-      // API 호출 시뮬레이션을 위한 약간의 지연
-        // 목데이터를 그대로 반환 (이미 API 응답 형식)
-        resolve(quizSubmitResponseMockData);
-    });
-
-    // 실제 API 호출 코드 (주석 처리)
-    // try {
-    //   const response = await axios.post(
-    //     `${API_BASE_URL}/books/${bookId}/summary/${summaryId}/submit`,
-    //     { answers }
-    //   );
-    //   return response.data;
-    // } catch (error) {
-    //   console.error('Failed to submit quiz answers:', error);
-    //   throw error;
-    // }
+  submitQuizAnswers: async (bookId, summaryId, answers) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/books/${bookId}/summary/${summaryId}/submit`,
+        { answers }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to submit quiz answers:', error);
+      throw error;
+    }
   },
 };
 

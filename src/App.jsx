@@ -1,38 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
+import { userApi } from './api/userApi';
 
 function App() {
   // 사용자 정보 상태 관리
-  // eslint-disable-next-line no-unused-vars
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // 앱 진입 시 사용자 정보 로드
   useEffect(() => {
-    // TODO: 실제 사용자 정보 API 호출로 교체
-    // 예:
-    // const fetchUser = async () => {
-    //   try {
-    //     const response = await fetch('/api/user');
-    //     const userData = await response.json();
-    //     setUser(userData);
-    //   } catch (error) {
-    //     console.error('Failed to fetch user:', error);
-    //   } finally {
-    //     setIsLoading(false);
-    //   }
-    // };
-    // fetchUser();
-    
-    // 임시: 로딩 시뮬레이션
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      // 실제로는 API에서 받아온 사용자 정보를 설정
-      // setUser(userData);
-    }, 100);
+    const fetchUser = async () => {
+      try {
+        const userData = await userApi.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        // 에러 발생 시에도 로딩은 완료 처리 (비로그인 사용자도 접근 가능하도록)
+        // setUser(null); // 이미 null이므로 별도 설정 불필요
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchUser();
   }, []);
 
   // 사용자 정보 로딩 중일 때

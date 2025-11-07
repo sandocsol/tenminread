@@ -5,7 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { quizApi } from '../../../api/quizApi';
 
 function useQuiz() {
-  const { bookId } = useParams();
+  const { bookId, summaryId } = useParams();
   const navigate = useNavigate();
 
   // 1. 고유한 스토리지 키 정의 (bookId 변경 시에만 재생성)
@@ -95,13 +95,11 @@ function useQuiz() {
   // 퀴즈 데이터 로드
   useEffect(() => {
     const fetchQuizzes = async () => {
-      if (!bookId) return;
+      if (!bookId || !summaryId) return;
 
       try {
         setIsLoading(true);
         setIsError(false);
-        // TODO: summaryId는 실제로는 다른 곳에서 받아와야 함 (현재는 임시로 1 사용)
-        const summaryId = 1; // 임시 값
         const data = await quizApi.getQuizzes(bookId, summaryId);
         setQuizData(data);
       } catch (error) {
@@ -115,7 +113,7 @@ function useQuiz() {
     };
 
     fetchQuizzes();
-  }, [bookId]);
+  }, [bookId, summaryId]);
 
   // 현재 질문 가져오기
   const currentQuestion = useMemo(() => {
@@ -188,8 +186,6 @@ function useQuiz() {
         const submitAnswers = async () => {
           try {
             setIsSubmitting(true);
-            // TODO: summaryId는 실제로는 다른 곳에서 받아와야 함 (현재는 임시로 1 사용)
-            const summaryId = 1; // 임시 값
             
             // API 요청 형식으로 변환
             const answersForApi = newAnswers.map((a) => ({
@@ -217,7 +213,7 @@ function useQuiz() {
       
       return newAnswers;
     });
-  }, [currentStep, totalSteps, bookId]);
+  }, [currentStep, totalSteps, bookId, summaryId]);
 
   // 결과 확인 핸들러 (결과 화면에서 스트릭 화면으로)
   const handleShowStreak = useCallback(() => {
@@ -232,8 +228,8 @@ function useQuiz() {
     removeStoredValue(STORAGE_KEYS.userAnswers);
     removeStoredValue(STORAGE_KEYS.submitResult);
     
-    // 뷰어 페이지로 이동
-    navigate(`/reader/${bookId}`);
+    // 책 상세 페이지로 이동 (또는 다음 요약으로 이동할 수도 있음)
+    navigate(`/book/${bookId}`);
   }, [navigate, bookId, STORAGE_KEYS]);
 
   // 결과 객체
