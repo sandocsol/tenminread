@@ -20,10 +20,8 @@ export const bookApi = {
     // 현재는 목데이터 사용
     return new Promise((resolve) => {
       // API 호출 시뮬레이션을 위한 약간의 지연
-      setTimeout(() => {
-        // bookId에 맞는 데이터 반환 (현재는 하나의 목데이터만 있음)
-        resolve(bookInfoData);
-      }, 300);
+      // bookId에 맞는 데이터 반환 (현재는 하나의 목데이터만 있음)
+      resolve(bookInfoData);
     });
 
     // 실제 API 호출 코드 (주석 처리)
@@ -74,13 +72,12 @@ export const bookApi = {
     // TODO: 실제 API 호출로 교체
     // 현재는 목데이터 사용
     return new Promise((resolve) => {
-      setTimeout(() => {
         // 목데이터 반환 (API 응답 형식)
         resolve({
           bookId: Number(bookId),
           toc: '1. 두 세계\n2. 카인\n3. 예수는 도둑과 함께 십자가에 못 박',
         });
-      }, 300);
+
     });
 
     // 실제 API 호출 코드 (주석 처리)
@@ -103,14 +100,12 @@ export const bookApi = {
     // TODO: 실제 API 호출로 교체
     // 현재는 목데이터 사용
     return new Promise((resolve) => {
-      setTimeout(() => {
         // 목데이터 반환 (API 응답 형식)
         resolve({
           bookId: Number(bookId),
           userId: 1, // TODO: 실제 사용자 ID 사용
           isFavorited: !isFavorited,
         });
-      }, 200);
     });
 
     // 실제 API 호출 코드 (주석 처리)
@@ -127,4 +122,3 @@ export const bookApi = {
     // }
   },
 };
-
