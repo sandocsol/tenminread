@@ -16,6 +16,13 @@ const PageContainer = styled.div`
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  
+  /* 스크롤바 숨기기 */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 `;
 
 const TopSection = styled.div`
