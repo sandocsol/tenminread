@@ -220,45 +220,22 @@ function useQuiz() {
         if (!question) return null;
 
         const resultInfo = resultsMap.get(userAnswer.questionId);
-        const rawCorrectChoice = resultInfo?.correctChoice;
-
-        const normalizeChoiceIndex = (choice, optionsLength) => {
-          if (choice === null || choice === undefined) return null;
-          const numeric = typeof choice === 'string' ? Number(choice) : choice;
-          if (Number.isNaN(numeric)) return null;
-
-          if (numeric >= 0 && numeric < optionsLength) {
-            return numeric;
-          }
-
-          const oneBased = numeric - 1;
-          if (oneBased >= 0 && oneBased < optionsLength) {
-            return oneBased;
-          }
-
-          return null;
-        };
-
-        const correctChoiceIndex = normalizeChoiceIndex(rawCorrectChoice, question.options.length);
-
-        const isCorrect =
-          resultInfo?.isCorrect !== undefined
-            ? resultInfo.isCorrect
-            : correctChoiceIndex !== null && userAnswer.answerIndex === correctChoiceIndex;
-
-        const correctAnswerText =
-          correctChoiceIndex !== null && question.options[correctChoiceIndex]
-            ? question.options[correctChoiceIndex]
-            : null;
+        const isCorrect = resultInfo?.isCorrect || false;
+        const correctChoice = resultInfo?.correctChoice;
+        
+        // 정답 텍스트 찾기
+        const correctAnswerText = correctChoice !== undefined && question.options[correctChoice]
+          ? question.options[correctChoice]
+          : null;
 
         return {
           questionId: question.id,
           question: question.question,
           userAnswer: userAnswer.answerIndex,
           userAnswerText: userAnswer.answerText,
-          correctAnswer: correctChoiceIndex,
-          correctAnswerText,
-          isCorrect
+          correctAnswer: correctChoice,
+          correctAnswerText: correctAnswerText,
+          isCorrect: isCorrect
         };
       })
       .filter(Boolean);
@@ -301,8 +278,7 @@ function useQuiz() {
           // API 요청 형식으로 변환
           const answersForApi = newAnswers.map((a) => ({
             quizId: a.questionId,
-            submittedAnswer:
-              typeof a.answerIndex === 'number' ? a.answerIndex + 1 : a.answerIndex
+            submittedAnswer: a.answerIndex
           }));
           
           // 정답 제출 API 호출
