@@ -3,7 +3,24 @@ import axios from 'axios';
 // import quizSubmitResponseMockData from '../mock/quizSubmitResponse.json'; // 실제 API 연동으로 인해 주석 처리
 
 // 실제 API 연동 시 사용할 BASE URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// 환경변수로 백엔드 서버 주소 설정 (예: http://localhost:8080/api)
+// 개발 환경: VITE_API_BASE_URL=http://localhost:8080/api
+// 프로덕션: VITE_API_BASE_URL=https://your-backend.com/api
+// API_BASE_URL이 /api로 끝나지 않으면 자동으로 추가
+const getApiBaseUrl = () => {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  // 이미 /api로 끝나는 경우 그대로 반환
+  if (baseUrl.endsWith('/api')) {
+    return baseUrl;
+  }
+  // /로 끝나는 경우 /api 추가
+  if (baseUrl.endsWith('/')) {
+    return `${baseUrl}api`;
+  }
+  // 그 외의 경우 /api 추가
+  return `${baseUrl}/api`;
+};
+const API_BASE_URL = getApiBaseUrl();
 
 /**
  * 퀴즈 API

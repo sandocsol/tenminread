@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalStyle from './styles/GlobalStyle';
-import { userApi } from './api/userApi';
+// import { userApi } from './api/userApi'; // TODO: 실제 사용자 API 연동 시 주석 해제
 
 function App() {
   // 사용자 정보 상태 관리
@@ -10,20 +10,33 @@ function App() {
 
   // 앱 진입 시 사용자 정보 로드
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const userData = await userApi.getCurrentUser();
-        setUser(userData);
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
-        // 에러 발생 시에도 로딩은 완료 처리 (비로그인 사용자도 접근 가능하도록)
-        // setUser(null); // 이미 null이므로 별도 설정 불필요
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    // TODO: 실제 사용자 정보 API 호출로 교체
+    // const fetchUser = async () => {
+    //   try {
+    //     const userData = await userApi.getCurrentUser();
+    //     setUser(userData);
+    //   } catch (error) {
+    //     console.error('Failed to fetch user:', error);
+    //     // 에러 발생 시에도 로딩은 완료 처리 (비로그인 사용자도 접근 가능하도록)
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
+    // fetchUser();
 
-    fetchUser();
+    // 임시: 목데이터 사용 (비로그인 상태로 설정)
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+      // setUser(null); // 비로그인 상태
+      // 또는 임시 사용자 데이터
+      // setUser({
+      //   id: 1,
+      //   name: '사용자',
+      //   email: 'user@example.com'
+      // });
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // 사용자 정보 로딩 중일 때

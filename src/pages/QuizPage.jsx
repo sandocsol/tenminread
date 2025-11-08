@@ -10,6 +10,7 @@ function QuizPage() {
     currentStep,
     totalSteps,
     questions,
+    userAnswers,
     result,
     streakInfo,
     onSubmitAnswer,
@@ -29,6 +30,7 @@ function QuizPage() {
         question={currentQuestion}
         currentStep={currentStep}
         totalSteps={totalSteps}
+        userAnswers={userAnswers}
         onSubmitAnswer={onSubmitAnswer}
       />
     );

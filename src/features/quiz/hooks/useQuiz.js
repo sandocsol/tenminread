@@ -8,16 +8,16 @@ function useQuiz() {
   const { bookId, summaryId } = useParams();
   const navigate = useNavigate();
 
-  // 1. 고유한 스토리지 키 정의 (bookId 변경 시에만 재생성)
+  // 1. 고유한 스토리지 키 정의 (bookId와 summaryId 모두 포함)
   const STORAGE_KEYS = useMemo(() => {
-    const getStorageKey = (key) => `quiz_${bookId}_${key}`;
+    const getStorageKey = (key) => `quiz_${bookId}_${summaryId}_${key}`;
     return {
       quizStatus: getStorageKey('status'),
       currentStep: getStorageKey('step'),
       userAnswers: getStorageKey('answers'),
       submitResult: getStorageKey('submitResult')
     };
-  }, [bookId]);
+  }, [bookId, summaryId]);
 
   // sessionStorage에서 초기값 읽어오는 헬퍼 함수
   const getStoredValue = (key, defaultValue) => {
@@ -49,16 +49,10 @@ function useQuiz() {
     }
   };
 
-  // 2. useState의 초기값 설정 (Lazy Initializer 사용)
-  const [quizStatus, setQuizStatus] = useState(() => 
-    getStoredValue(STORAGE_KEYS.quizStatus, 'quiz')
-  ); // 'quiz' | 'result' | 'streak'
-  const [currentStep, setCurrentStep] = useState(() => 
-    getStoredValue(STORAGE_KEYS.currentStep, 0)
-  );
-  const [userAnswers, setUserAnswers] = useState(() => 
-    getStoredValue(STORAGE_KEYS.userAnswers, [])
-  );
+  // 2. useState의 초기값 설정 (기본값으로 시작, useEffect에서 복원)
+  const [quizStatus, setQuizStatus] = useState('quiz'); // 'quiz' | 'result' | 'streak'
+  const [currentStep, setCurrentStep] = useState(0);
+  const [userAnswers, setUserAnswers] = useState([]);
 
   // 3. useEffect로 상태 변경 시 저장
   useEffect(() => {
@@ -79,9 +73,7 @@ function useQuiz() {
   const [isError, setIsError] = useState(false);
   
   // 제출 API 응답 상태 (정답 정보 포함)
-  const [submitResult, setSubmitResult] = useState(() => 
-    getStoredValue(STORAGE_KEYS.submitResult, null)
-  );
+  const [submitResult, setSubmitResult] = useState(null);
 
   // submitResult 변경 시 sessionStorage에 저장
   useEffect(() => {
@@ -89,8 +81,51 @@ function useQuiz() {
       setStoredValue(STORAGE_KEYS.submitResult, submitResult);
     }
   }, [submitResult, STORAGE_KEYS.submitResult]);
+  
+  // submitResult와 userAnswers가 모두 준비되면 결과 화면으로 이동
+  useEffect(() => {
+    if (
+      submitResult && 
+      userAnswers.length > 0 && 
+      quizStatus === 'quiz' &&
+      quizData?.totalQuestions > 0
+    ) {
+      // 모든 답변이 제출되었고 결과가 있으면 결과 화면으로 이동
+      const expectedAnswers = quizData.totalQuestions;
+      if (userAnswers.length >= expectedAnswers) {
+        setQuizStatus('result');
+      }
+    }
+  }, [submitResult, userAnswers, quizStatus, quizData]);
   // eslint-disable-next-line no-unused-vars
   const [isSubmitting, setIsSubmitting] = useState(false); // TODO: 제출 중 로딩 상태 표시에 사용
+
+  // bookId나 summaryId가 변경될 때 세션 스토리지에서 데이터 로드 및 상태 초기화
+  // 이 useEffect는 컴포넌트 마운트 시와 bookId/summaryId 변경 시 실행됨
+  useEffect(() => {
+    if (!bookId || !summaryId) return;
+
+    // 현재 STORAGE_KEYS에 해당하는 세션 스토리지 데이터 로드
+    const storedStatus = getStoredValue(STORAGE_KEYS.quizStatus, null);
+    const storedStep = getStoredValue(STORAGE_KEYS.currentStep, null);
+    const storedAnswers = getStoredValue(STORAGE_KEYS.userAnswers, null);
+    const storedSubmitResult = getStoredValue(STORAGE_KEYS.submitResult, null);
+    
+    // 저장된 데이터가 있으면 복원 (null이 아닌 경우에만)
+    if (storedStatus !== null) {
+      setQuizStatus(storedStatus);
+    }
+    if (storedStep !== null) {
+      setCurrentStep(storedStep);
+    }
+    if (storedAnswers !== null) {
+      setUserAnswers(storedAnswers);
+    }
+    if (storedSubmitResult !== null) {
+      setSubmitResult(storedSubmitResult);
+    }
+    // 저장된 데이터가 없으면 기본값 유지 (이미 useState에서 설정됨)
+  }, [bookId, summaryId, STORAGE_KEYS]);
 
   // 퀴즈 데이터 로드
   useEffect(() => {
@@ -102,6 +137,40 @@ function useQuiz() {
         setIsError(false);
         const data = await quizApi.getQuizzes(bookId, summaryId);
         setQuizData(data);
+        
+        // 퀴즈 데이터를 불러온 후, 세션 스토리지의 답변과 검증
+        // 만약 저장된 답변의 개수가 현재 퀴즈 문제 수와 다르면 초기화
+        const storedAnswers = getStoredValue(STORAGE_KEYS.userAnswers, []);
+        const storedStatus = getStoredValue(STORAGE_KEYS.quizStatus, null);
+        
+        // 퀴즈 진행 중인 상태인데, 저장된 답변 수와 문제 수가 다르면 초기화
+        if (storedStatus === 'quiz' && storedAnswers.length > 0 && storedAnswers.length !== data.totalQuestions) {
+          // 불일치하는 경우 초기화
+          console.warn('퀴즈 문제 수와 저장된 답변 수가 불일치합니다. 초기화합니다.');
+          removeStoredValue(STORAGE_KEYS.quizStatus);
+          removeStoredValue(STORAGE_KEYS.currentStep);
+          removeStoredValue(STORAGE_KEYS.userAnswers);
+          removeStoredValue(STORAGE_KEYS.submitResult);
+          setQuizStatus('quiz');
+          setCurrentStep(0);
+          setUserAnswers([]);
+          setSubmitResult(null);
+        }
+        
+        // 결과 화면인데 submitResult가 없거나 답변 수가 맞지 않으면 초기화
+        if ((storedStatus === 'result' || storedStatus === 'streak') && 
+            (!getStoredValue(STORAGE_KEYS.submitResult, null) || 
+             storedAnswers.length !== data.totalQuestions)) {
+          console.warn('결과 화면 데이터가 불완전합니다. 초기화합니다.');
+          removeStoredValue(STORAGE_KEYS.quizStatus);
+          removeStoredValue(STORAGE_KEYS.currentStep);
+          removeStoredValue(STORAGE_KEYS.userAnswers);
+          removeStoredValue(STORAGE_KEYS.submitResult);
+          setQuizStatus('quiz');
+          setCurrentStep(0);
+          setUserAnswers([]);
+          setSubmitResult(null);
+        }
       } catch (error) {
         console.error('Failed to fetch quizzes:', error);
         setIsError(true);
@@ -113,7 +182,7 @@ function useQuiz() {
     };
 
     fetchQuizzes();
-  }, [bookId, summaryId]);
+  }, [bookId, summaryId, STORAGE_KEYS]);
 
   // 현재 질문 가져오기
   const currentQuestion = useMemo(() => {
@@ -128,40 +197,76 @@ function useQuiz() {
 
   // 정답 계산 함수 (제출 API 응답 기반)
   const calculateResult = useCallback(() => {
-    if (!quizData?.questions || !submitResult) return null;
+    // 필수 데이터가 모두 있어야만 결과 계산
+    if (!quizData?.questions || !submitResult || !userAnswers || userAnswers.length === 0) {
+      return null;
+    }
 
     // 제출 API 응답의 results를 사용해서 정답 정보 매핑
+    // 서버 응답: { quizId, correctChoice, correct }
     const resultsMap = new Map();
-    submitResult.results?.forEach((result) => {
-      resultsMap.set(result.quizId, {
-        isCorrect: result.isCorrect,
-        correctChoice: result.correctChoice
+    if (submitResult.results && Array.isArray(submitResult.results)) {
+      submitResult.results.forEach((result) => {
+        resultsMap.set(result.quizId, {
+          isCorrect: result.correct === true, // 서버는 'correct' 필드를 사용
+          correctChoice: result.correctChoice
+        });
       });
-    });
+    }
 
-    const processedAnswers = userAnswers.map((userAnswer) => {
-      const question = quizData.questions.find(q => q.id === userAnswer.questionId);
-      if (!question) return null;
+    const processedAnswers = userAnswers
+      .map((userAnswer) => {
+        const question = quizData.questions.find(q => q.id === userAnswer.questionId);
+        if (!question) return null;
 
-      const resultInfo = resultsMap.get(userAnswer.questionId);
-      const isCorrect = resultInfo?.isCorrect || false;
-      const correctChoice = resultInfo?.correctChoice;
-      
-      // 정답 텍스트 찾기
-      const correctAnswerText = correctChoice !== undefined && question.options[correctChoice]
-        ? question.options[correctChoice]
-        : null;
+        const resultInfo = resultsMap.get(userAnswer.questionId);
+        const rawCorrectChoice = resultInfo?.correctChoice;
 
-      return {
-        questionId: question.id,
-        question: question.question,
-        userAnswer: userAnswer.answerIndex,
-        userAnswerText: userAnswer.answerText,
-        correctAnswer: correctChoice,
-        correctAnswerText: correctAnswerText,
-        isCorrect: isCorrect
-      };
-    }).filter(Boolean);
+        const normalizeChoiceIndex = (choice, optionsLength) => {
+          if (choice === null || choice === undefined) return null;
+          const numeric = typeof choice === 'string' ? Number(choice) : choice;
+          if (Number.isNaN(numeric)) return null;
+
+          if (numeric >= 0 && numeric < optionsLength) {
+            return numeric;
+          }
+
+          const oneBased = numeric - 1;
+          if (oneBased >= 0 && oneBased < optionsLength) {
+            return oneBased;
+          }
+
+          return null;
+        };
+
+        const correctChoiceIndex = normalizeChoiceIndex(rawCorrectChoice, question.options.length);
+
+        const isCorrect =
+          resultInfo?.isCorrect !== undefined
+            ? resultInfo.isCorrect
+            : correctChoiceIndex !== null && userAnswer.answerIndex === correctChoiceIndex;
+
+        const correctAnswerText =
+          correctChoiceIndex !== null && question.options[correctChoiceIndex]
+            ? question.options[correctChoiceIndex]
+            : null;
+
+        return {
+          questionId: question.id,
+          question: question.question,
+          userAnswer: userAnswer.answerIndex,
+          userAnswerText: userAnswer.answerText,
+          correctAnswer: correctChoiceIndex,
+          correctAnswerText,
+          isCorrect
+        };
+      })
+      .filter(Boolean);
+
+    // 처리된 답변이 없으면 null 반환
+    if (processedAnswers.length === 0) {
+      return null;
+    }
 
     const totalCorrect = processedAnswers.filter(a => a.isCorrect).length;
 
@@ -174,46 +279,50 @@ function useQuiz() {
 
   // 답변 제출 핸들러
   const handleSubmitAnswer = useCallback(async (answer) => {
-    setUserAnswers((prevAnswers) => {
-      const newAnswers = [...prevAnswers, answer];
+    // 이미 답변한 질문인지 확인하고 업데이트 또는 추가
+    const existingAnswerIndex = userAnswers.findIndex(a => a.questionId === answer.questionId);
+    const newAnswers = existingAnswerIndex >= 0
+      ? userAnswers.map((a, index) => index === existingAnswerIndex ? answer : a)
+      : [...userAnswers, answer];
+    
+    // 마지막 문항인지 확인
+    if (currentStep < totalSteps - 1) {
+      // 다음 문항으로 이동
+      setUserAnswers(newAnswers);
+      setCurrentStep(currentStep + 1);
+    } else {
+      // 마지막 문항: 정답 제출 API 호출
+      setUserAnswers(newAnswers);
       
-      // 마지막 문항인지 확인
-      if (currentStep < totalSteps - 1) {
-        // 다음 문항으로 이동
-        setCurrentStep(currentStep + 1);
-      } else {
-        // 마지막 문항: 정답 제출 API 호출
-        const submitAnswers = async () => {
-          try {
-            setIsSubmitting(true);
-            
-            // API 요청 형식으로 변환
-            const answersForApi = newAnswers.map((a) => ({
-              quizId: a.questionId,
-              submittedAnswer: a.answerIndex
-            }));
-            
-            // 정답 제출 API 호출
-            const result = await quizApi.submitQuizAnswers(bookId, summaryId, answersForApi);
-            setSubmitResult(result);
-            
-            // 결과 화면으로 이동
-            setQuizStatus('result');
-          } catch (error) {
-            console.error('Failed to submit quiz answers:', error);
-            // 에러 발생 시에도 결과 화면으로 이동 (에러 처리 필요 시 추가)
-            setQuizStatus('result');
-          } finally {
-            setIsSubmitting(false);
-          }
-        };
-        
-        submitAnswers();
-      }
+      const submitAnswers = async () => {
+        try {
+          setIsSubmitting(true);
+          
+          // API 요청 형식으로 변환
+          const answersForApi = newAnswers.map((a) => ({
+            quizId: a.questionId,
+            submittedAnswer:
+              typeof a.answerIndex === 'number' ? a.answerIndex + 1 : a.answerIndex
+          }));
+          
+          // 정답 제출 API 호출
+          const result = await quizApi.submitQuizAnswers(bookId, summaryId, answersForApi);
+          
+          // submitResult를 먼저 설정하고, 그 다음 상태 변경
+          // useEffect에서 submitResult 변경을 감지하여 quizStatus를 업데이트하도록 변경
+          setSubmitResult(result);
+        } catch (error) {
+          console.error('Failed to submit quiz answers:', error);
+          // 에러 발생 시에도 빈 결과로 설정하여 화면 전환
+          setSubmitResult({ results: [], correctCount: 0 });
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
       
-      return newAnswers;
-    });
-  }, [currentStep, totalSteps, bookId, summaryId]);
+      submitAnswers();
+    }
+  }, [currentStep, totalSteps, bookId, summaryId, userAnswers]);
 
   // 결과 확인 핸들러 (결과 화면에서 스트릭 화면으로)
   const handleShowStreak = useCallback(() => {
@@ -295,6 +404,7 @@ function useQuiz() {
     currentStep: currentStep + 1, // 1-based로 표시하기 위해 +1
     totalSteps,
     questions: quizData?.questions || [],
+    userAnswers,
     result,
     streakInfo,
     onSubmitAnswer: handleSubmitAnswer,

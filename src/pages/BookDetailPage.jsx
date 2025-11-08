@@ -499,6 +499,9 @@ function BookDetailPage() {
     );
   }
 
+  // 독서 진행 일차: readingProgress가 있으면 우선 사용, 없으면 bookData.day 사용, 둘 다 없으면 0
+  const currentDay = readingProgress?.currentDay || bookData.day || 0;
+
   return (
     <PageContainer>
       {/* 상단 영역: 배경색 #FFF7EB */}
@@ -557,32 +560,32 @@ function BookDetailPage() {
         <ReadingRecordCard>
           <RecordHeader>
             <DayLabel>
-              <DayText isActive={bookData.day >= 1}>1일차</DayText>
+              <DayText isActive={currentDay >= 1}>1일차</DayText>
             </DayLabel>
             <DayLabel>
-              <DayText isActive={bookData.day >= 2}>2일차</DayText>
+              <DayText isActive={currentDay >= 2}>2일차</DayText>
             </DayLabel>
             <DayLabel>
-              <DayText isActive={bookData.day >= 3}>3일차</DayText>
+              <DayText isActive={currentDay >= 3}>3일차</DayText>
             </DayLabel>
           </RecordHeader>
           <RecordDays>
-            <DayIcon isActive={bookData.day >= 1}>
+            <DayIcon isActive={currentDay >= 1}>
               <img 
-                src={bookData.day >= 1 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
-                alt={bookData.day >= 1 ? '활성화됨' : '비활성화됨'} 
+                src={currentDay >= 1 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
+                alt={currentDay >= 1 ? '활성화됨' : '비활성화됨'} 
               />
             </DayIcon>
-            <DayIcon isActive={bookData.day >= 2}>
+            <DayIcon isActive={currentDay >= 2}>
               <img 
-                src={bookData.day >= 2 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
-                alt={bookData.day >= 2 ? '활성화됨' : '비활성화됨'} 
+                src={currentDay >= 2 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
+                alt={currentDay >= 2 ? '활성화됨' : '비활성화됨'} 
               />
             </DayIcon>
-            <DayIcon isActive={bookData.day >= 3}>
+            <DayIcon isActive={currentDay >= 3}>
               <img 
-                src={bookData.day >= 3 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
-                alt={bookData.day >= 3 ? '활성화됨' : '비활성화됨'} 
+                src={currentDay >= 3 ? '/assets/book_open.svg' : '/assets/book_lock.svg'} 
+                alt={currentDay >= 3 ? '활성화됨' : '비활성화됨'} 
               />
             </DayIcon>
           </RecordDays>

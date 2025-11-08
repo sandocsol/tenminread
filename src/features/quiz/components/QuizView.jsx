@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ProgressBar from './ProgressBar';
 import Button from '../../../components/Button';
@@ -115,8 +115,25 @@ const NextButtonWrapper = styled.div`
   transform: translateX(-50%);
 `;
 
-function QuizView({ question, currentStep, totalSteps, onSubmitAnswer }) {
+function QuizView({ question, currentStep, totalSteps, userAnswers, onSubmitAnswer }) {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  // 질문이 변경될 때마다 선택된 답변 복원 또는 초기화
+  useEffect(() => {
+    if (question?.id && userAnswers) {
+      // 현재 질문에 대한 답변이 이미 있는지 확인
+      const existingAnswer = userAnswers.find(answer => answer.questionId === question.id);
+      if (existingAnswer !== undefined) {
+        // 이미 답변한 질문이면 복원
+        setSelectedAnswer(existingAnswer.answerIndex);
+      } else {
+        // 아직 답변하지 않은 질문이면 초기화
+        setSelectedAnswer(null);
+      }
+    } else {
+      setSelectedAnswer(null);
+    }
+  }, [question?.id, userAnswers]);
 
   const handleOptionClick = (optionIndex) => {
     setSelectedAnswer(optionIndex);
@@ -158,7 +175,7 @@ function QuizView({ question, currentStep, totalSteps, onSubmitAnswer }) {
       <OptionsContainer>
         {question.options.map((option, index) => (
           <OptionButton
-            key={index}
+            key={`${question.id}-${index}`}
             isSelected={selectedAnswer === index}
             onClick={() => handleOptionClick(index)}
           >

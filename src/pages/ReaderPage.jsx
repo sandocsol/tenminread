@@ -73,15 +73,20 @@ function ReaderPage() {
   // 책 요약(본문) API 호출
   useEffect(() => {
     const fetchBookSummary = async () => {
-      if (!bookId || !seq) return;
+      if (!bookId || !seq) {
+        console.warn('⚠️ bookId 또는 seq가 없습니다:', { bookId, seq });
+        return;
+      }
       
       try {
+        console.log('📚 책 요약 요청:', { bookId, seq });
         const data = await bookApi.getBookSummary(bookId, seq);
+        console.log('✅ 책 요약 응답:', data);
         setBookContent(data);
         // 컨텐츠가 로드되면 키를 변경하여 스크롤 리스너 재등록
         setContentKey(prev => prev + 1);
       } catch (error) {
-        console.error('Failed to fetch book summary:', error);
+        console.error('❌ Failed to fetch book summary:', error);
         // 에러 발생 시 빈 내용으로 설정하여 UI가 깨지지 않도록 함
         setBookContent({ summaryText: '', bookId: Number(bookId), seq: Number(seq), version: 'v1' });
       }
